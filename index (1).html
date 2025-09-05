@@ -1,0 +1,107 @@
+<!DOCTYPE html><html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pedacinho de Papel</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    :root{
+      --bg:#f8fafc; --card:#ffffff; --ink:#111827; --muted:#64748b; --line:#e5e7eb;
+      --brand:#1d4ed8; --brand-2:#3b82f6;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Cantarell,Noto Sans,Arial; color:var(--ink); background:linear-gradient(180deg,var(--bg),#fff)}
+    header{position:sticky;top:0;background:rgba(255,255,255,.8);backdrop-filter:blur(8px); border-bottom:1px solid var(--line);}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    h1{font-size:clamp(18px,3vw,24px);margin:0;font-weight:800}
+    h1 span{color:var(--brand)}
+    .bar{display:flex;gap:8px;align-items:center}
+    .btn{border:1px solid var(--line); background:#fff; padding:8px 12px; border-radius:12px; cursor:pointer}
+    .btn:hover{background:#f1f5f9}
+    .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; box-shadow:0 1px 1px rgba(0,0,0,.02)}
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+    .thumb{border:1px solid var(--line); background:#f9fafb; border-radius:14px; display:grid; place-items:center; min-height:180px; padding:8px}
+    .premium{position:relative}
+    .premium .lock{position:absolute; inset:0; display:grid; place-items:center; background:linear-gradient(rgba(255,255,255,.6),rgba(255,255,255,.7)); border-radius:14px; backdrop-filter:blur(2px);}
+    .tag{display:inline-block; font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:#1d4ed8; background:#eff6ff}/* Modal Pix */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:50}
+.modal-content{background:#fff;padding:20px;border-radius:16px;max-width:400px;width:90%;text-align:center;}
+.pix-code{word-break:break-all; font-size:12px; background:#f1f5f9; padding:8px; border-radius:8px; margin-top:8px}
+
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap bar">
+      <h1>Pedacinho de <span>Papel</span></h1>
+      <div style="margin-left:auto" class="bar">
+        <button class="btn" id="btnPrint">Imprimir A4</button>
+        <a class="btn" href="#como-usar">Como usar</a>
+      </div>
+    </div>
+  </header>  <main class="wrap" style="padding-block:20px">
+    <section class="card">
+      <h2 style="margin:0 0 10px 0">Temas prontos</h2>
+      <div class="gallery">
+        <div class="card premium">
+          <div class="top"><div><div class="title">Tema Safari</div><div class="subtitle">Bichinhos, folhas e verde</div></div><span class="tag">Premium</span></div>
+          <div class="thumb">Prévia Safari</div>
+          <div class="lock"><div><strong>R$ 12,90</strong><br/><button class="btn" onclick="abrirPix('Tema Safari','safari.zip',12.90)">Comprar</button></div></div>
+        </div>
+        <div class="card premium">
+          <div class="top"><div><div class="title">Tema Espaço</div><div class="subtitle">Foguete, planetas e estrelas</div></div><span class="tag">Premium</span></div>
+          <div class="thumb">Prévia Espaço</div>
+          <div class="lock"><div><strong>R$ 12,90</strong><br/><button class="btn" onclick="abrirPix('Tema Espaço','espaco.zip',12.90)">Comprar</button></div></div>
+        </div>
+        <div class="card premium">
+          <div class="top"><div><div class="title">Tema Naruto</div><div class="subtitle">Nuvem Akatsuki, kunai, ramen</div></div><span class="tag">Premium</span></div>
+          <div class="thumb">Prévia Naruto</div>
+          <div class="lock"><div><strong>R$ 14,90</strong><br/><button class="btn" onclick="abrirPix('Tema Naruto','naruto.zip',14.90)">Comprar</button></div></div>
+        </div>
+        <div class="card premium">
+          <div class="top"><div><div class="title">Tema One Piece</div><div class="subtitle">Jolly Roger, navio, chapéu de palha</div></div><span class="tag">Premium</span></div>
+          <div class="thumb">Prévia One Piece</div>
+          <div class="lock"><div><strong>R$ 14,90</strong><br/><button class="btn" onclick="abrirPix('Tema One Piece','onepiece.zip',14.90)">Comprar</button></div></div>
+        </div>
+      </div>
+    </section>
+  </main>  <!-- Modal PIX -->  <div id="pixModal" class="modal">
+    <div class="modal-content">
+      <h3 id="pixTitle">Pagamento via Pix</h3>
+      <div id="qrcode"></div>
+      <div id="pixText" class="pix-code"></div>
+      <button class="btn" onclick="liberarTema()">Já paguei</button>
+      <button class="btn" onclick="fecharPix()">Fechar</button>
+    </div>
+  </div>  <script>
+    const chavePix = "6318eb9d-7137-4170-80c7-74923c21af63";
+    let temaSelecionado = "";
+    let arquivoTema = "";
+
+    function abrirPix(tema, arquivo, valor){
+      temaSelecionado = tema;
+      arquivoTema = arquivo;
+      document.getElementById("pixTitle").innerText = `Pagamento Pix - ${tema}`;
+      const payload = `00020126360014BR.GOV.BCB.PIX0116${chavePix}520400005303986540${valor.toFixed(2)}5802BR5918Pedacinho de Papel6009Sao Paulo62070503***6304ABCD`;
+      document.getElementById("pixText").innerText = payload;
+      document.getElementById("pixModal").style.display = "flex";
+      document.getElementById("qrcode").innerHTML = "";
+      new QRCode(document.getElementById("qrcode"), {text: payload, width: 180, height: 180});
+    }
+
+    function fecharPix(){
+      document.getElementById("pixModal").style.display = "none";
+    }
+
+    function liberarTema(){
+      fecharPix();
+      const link = document.createElement('a');
+      link.href = arquivoTema; // Arquivo ZIP fictício (coloque no servidor depois)
+      link.download = arquivoTema;
+      link.click();
+      alert(`Tema \"${temaSelecionado}\" liberado! (Simulação de download)`);
+    }
+
+    document.getElementById('btnPrint').addEventListener('click', ()=>window.print());
+  </script></body>
+</html>
